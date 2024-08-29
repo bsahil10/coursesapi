@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres
+    container_name: postgres-container
+    environment:
+      POSTGRES_USER: coursedb_t4iw_user
+      POSTGRES_PASSWORD: spgZs8sPa9OGZPyxaMYx4vj57fZhtpCw
+      POSTGRES_DB: coursedb_t4iw
+    ports:
+      - "5432:5432"
+    networks:
+      - backend-network
+
+  backend:
+    build: 
+      context: .  # Ensure this is the root directory where your backend Dockerfile is located
+      dockerfile: Dockerfile  # Change this if your backend Dockerfile has a specific name
+    container_name: backend-container
+    ports:
+      - "9090:9090"  # Updated port to match the backend Dockerfile
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+      
+  frontend:
+    build:
+      context: ./em-project-frontend-code  # Update the context to the frontend code directory
+      dockerfile: Dockerfile  # Dockerfile for the frontend
+    container_name: react-app
+    ports:
+      - "3001:3000"
+    environment:
+      - REACT_APP_API_URL=http://backend:9090  # Update backend URL to match the backend service port
+    depends_on:
+      - backend
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge

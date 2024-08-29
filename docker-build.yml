@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+
+  postgres:
+    image: postgres
+    container_name: postgres-container
+    environment:
+      POSTGRES_USER: coursedb_t4iw_user
+      POSTGRES_PASSWORD: spgZs8sPa9OGZPyxaMYx4vj57fZhtpCw
+      POSTGRES_DB: coursedb_t4iw
+    ports:
+      - "5432:5432"
+    networks:
+      - backend-network
+
+  backend:
+    image: purna16/backend-image
+    container_name: backend-container
+    ports:
+     - "3000:3000"
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+      
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: purna16/react-frontendiitb
+    container_name: react-app
+    ports:
+      - "3001:3000" 
+    environment:
+      - REACT_APP_API_URL=http://backend:3000
+    depends_on:
+      - backend
+    networks:
+      - backend-network
+
+networks:
+
+  backend-network:
+    driver: bridge
